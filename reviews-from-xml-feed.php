@@ -164,7 +164,7 @@ function reviews_from_xml_feed_shortcode() {
             echo '<div class="review" style="color:'.get_option( 'reviews_from_xml_feed_text_color' ).'">';
                 echo '<p class="review__content__title '.get_option( 'reviews_from_xml_feed_title_class' ).'">' . $review->reviewContent->reviewContent[1]->rating . '</p>';
                 echo '<p class="review__content__description '.get_option( 'reviews_from_xml_feed_description_class' ).'">' . $review->reviewContent->reviewContent[2]->rating . '</p>';
-                echo '<p class="review__header__author__info">' . 'door ' . $review->reviewAuthor . ', ' . $review->city . ' - ' . '<span class="review__header__rating__number">' . $review->rating . '</span>' . '<span class="review__header__rating__out-of"> / 10</span>' . '</p>';
+                echo '<p class="review__header__author__info '.get_option( 'reviews_from_xml_feed_description_class' ).'">' . 'door ' . $review->reviewAuthor . ', ' . $review->city . ' - ' . '<span class="review__header__rating__number">' . $review->rating . '</span>' . '<span class="review__header__rating__out-of"> / 10</span>' . '</p>';
             echo '</div>';
         }
         echo '</div>';
