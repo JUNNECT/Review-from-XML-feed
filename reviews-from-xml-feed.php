@@ -91,6 +91,7 @@ function reviews_from_xml_feed_admin_page() {
         <form method="post">
             <input type="submit" name="fetch_reviews" value="Fetch Reviews" class="button button-primary">
         </form>
+        <p>Toevoegen met de shortcode [reviews-from-xml-feed]</p>
     <?php
 
     if (isset($_POST['fetch_reviews'])) {
