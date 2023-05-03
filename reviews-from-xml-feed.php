@@ -3,7 +3,7 @@
 * Plugin Name: Kiyho - Reviews from XML feed
 * Plugin URI: https://junnect.nl/services/websites/
 * Description: Getting reviews from a given XML feed and display them on your website.
-* Version: 1.0.5
+* Version: 1.0.6
 * Requires at least: 5.0
 * Requires PHP: 7.0
 * License: GPL v2 or later
