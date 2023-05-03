@@ -17,3 +17,7 @@
     font-weight: 700;
     margin-bottom: 10px;
 }
+
+.review-slider .slick-arrow {
+    display:none!important;
+}
