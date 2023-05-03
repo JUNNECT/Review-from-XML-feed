@@ -4,6 +4,7 @@ jQuery(document).ready(function($){
         infinite: true,
         slidesToShow: 1,
         slidesToScroll: 1,
+        arrows: false,
         autoplay: true,
         adaptiveHeight: true,
         autoplaySpeed: 5000,
