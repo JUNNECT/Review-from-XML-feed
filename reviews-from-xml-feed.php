@@ -8,6 +8,38 @@
 * Author URI: https://junnect.nl/over-ons/
 **/
 
+// Cron job to run the function every day
+register_activation_hook(__FILE__, 'reviews_cron_schedule');
+register_deactivation_hook(__FILE__, 'reviews_cron_unschedule');
+
+function reviews_cron_schedule() {
+    if (!wp_next_scheduled('reviews_cron_job')) {
+        wp_schedule_event(time(), 'daily', 'reviews_cron_job');
+    }
+
+    fetch_and_store_reviews();
+}
+
+function reviews_cron_unschedule() {
+    wp_clear_scheduled_hook('reviews_cron_job');
+}
+
+// Fetch and store reviews
+add_action('reviews_cron_job', 'fetch_and_store_reviews');
+function fetch_and_store_reviews() {
+    $url = get_option( 'reviews_from_xml_feed_url' ); // Replace this with the URL of your XML file
+
+    $response = wp_remote_get($url);
+
+    if (is_wp_error($response)) {
+        return;
+    }
+
+    $xml = wp_remote_retrieve_body($response);
+
+    update_option('reviews_cron_data', $xml);
+}
+
 // Creating admin page for the plugin to add the XML feed URL
 function reviews_from_xml_feed_admin_menu() {
     add_options_page( 'Reviews from XML feed', 'Reviews from XML feed', 'manage_options', 'reviews-from-xml-feed', 'reviews_from_xml_feed_admin_page' );
@@ -55,6 +87,19 @@ function reviews_from_xml_feed_admin_page() {
     echo '</form>';
     echo '</div>';
 
+    ?>
+        <form method="post">
+            <input type="submit" name="fetch_reviews" value="Fetch Reviews" class="button button-primary">
+        </form>
+    <?php
+
+    if (isset($_POST['fetch_reviews'])) {
+        fetch_and_store_reviews();
+
+        // Display a success message
+        add_action('admin_notices', 'reviews_cron_success_notice');
+    }
+
     // Succes or error message after submit - Check if the XML feed URL is saved and if the URL is valid
     if ( isset( $_POST['reviews_from_xml_feed_hidden'] ) && $_POST['reviews_from_xml_feed_hidden'] == 'Y' ) {
         if ( $reviews_from_xml_feed_url ) {
@@ -73,6 +118,14 @@ function reviews_from_xml_feed_admin_page() {
 
 }
 
+function reviews_cron_success_notice() {
+    ?>
+    <div class="notice notice-success is-dismissible">
+        <p><?php _e('Reviews fetched successfully.', 'reviews-cron'); ?></p>
+    </div>
+    <?php
+}
+
 // Adding function that loads in the slick script and stylesheet
 function reviews_from_xml_feed_scripts() {
     wp_enqueue_script( 'slick', 'https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.9.0/slick.min.js', array( 'jquery' ), '1.9.0', true );
@@ -88,14 +141,15 @@ add_action( 'wp_enqueue_scripts', 'reviews_from_xml_feed_scripts' );
 function reviews_from_xml_feed_shortcode() {
     ob_start();
 
-    $xml = simplexml_load_file(get_option( 'reviews_from_xml_feed_url' ));
+    $xml_string = get_option('reviews_cron_data');
 
     // Check if the XML feed is blank, show error message if it is blank and show the reviews if it is not blank
-    if ( empty( $xml )) {
+    if ( empty( $xml_string )) {
         echo '<div class="notice notice-error is-dismissible">';
         echo '<p>XML feed is blank.</p>';
         echo '</div>';
     } else {
+        $xml = simplexml_load_string( $xml_string );
         echo '<div class="slick">';
 
         // adding a max to the foreach loop 
