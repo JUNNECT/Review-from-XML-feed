@@ -3,7 +3,7 @@
 * Plugin Name: Kiyho - Reviews from XML feed
 * Plugin URI: https://junnect.nl/services/websites/
 * Description: Getting reviews from a given XML feed and display them on your website.
-* Version: 1.0.4
+* Version: 1.0.5
 * Requires at least: 5.0
 * Requires PHP: 7.0
 * License: GPL v2 or later
@@ -13,11 +13,13 @@
 **/
 
 // Update the plugin
-require '/plugin-update-checker/plugin-update-checker.php';
-$myUpdateChecker = Puc_v4_Factory::buildUpdateChecker(
-	'https://github.com/JUNNECT/Review-from-XML-feed',
+require 'plugin-update-checker/plugin-update-checker.php';
+
+use YahnisElsts\PluginUpdateChecker\v5\PucFactory;
+$myUpdateChecker = PucFactory::buildUpdateChecker(
+    'https://github.com/JUNNECT/Review-from-XML-feed',
 	__FILE__,
-	'reviews-from-xml-feed'
+	'review-from-xml-feed'
 );
 
 //Optional: Set the branch that contains the stable release.
