@@ -3,44 +3,112 @@
 * Plugin Name: Reviews from XML feed
 * Plugin URI: https://junnect.nl/services/websites/
 * Description: Getting reviews from a given XML feed and display them on your website.
-* Version: 0.0.1
+* Version: 1.0.0
 * Author: JUNNECT
 * Author URI: https://junnect.nl/over-ons/
 **/
 
-// Registering the shortcode
+// Creating admin page for the plugin to add the XML feed URL
+function reviews_from_xml_feed_admin_menu() {
+    add_options_page( 'Reviews from XML feed', 'Reviews from XML feed', 'manage_options', 'reviews-from-xml-feed', 'reviews_from_xml_feed_admin_page' );
+}
+add_action( 'admin_menu', 'reviews_from_xml_feed_admin_menu' );
+
+// Creating the admin page
+function reviews_from_xml_feed_admin_page() {
+    // Checking if the user has the right to access the admin page
+    if ( !current_user_can( 'manage_options' ) ) {
+        wp_die( __( 'You do not have sufficient permissions to access this page.' ) );
+    }
+
+    // Loading the form and saving it
+    if ( isset( $_POST['reviews_from_xml_feed_hidden'] ) && $_POST['reviews_from_xml_feed_hidden'] == 'Y' ) {
+        $reviews_from_xml_feed_url = $_POST['reviews_from_xml_feed_url'];
+        update_option( 'reviews_from_xml_feed_url', $reviews_from_xml_feed_url );
+    }
+
+    // Getting the XML feed URL from the database
+    $reviews_from_xml_feed_url = get_option( 'reviews_from_xml_feed_url' );
+    
+    // Creating the form
+    echo '<div class="wrap">';
+    echo '<h1>Reviews from XML feed</h1>';
+    echo '<form name="reviews_from_xml_feed_form" method="post" action="' . str_replace( '%7E', '~', $_SERVER['REQUEST_URI'] ) . '">';
+    echo '<input type="hidden" name="reviews_from_xml_feed_hidden" value="Y">';
+    echo '<p>XML feed URL: <input type="text" name="reviews_from_xml_feed_url" value="' . $reviews_from_xml_feed_url . '" size="50"></p>';
+    echo '<p><input type="submit" name="Submit" value="Save" class="button button-primary"></p>';
+    echo '</form>';
+    echo '</div>';
+
+    // Succes or error message after submit - Check if the XML feed URL is saved and if the URL is valid
+    if ( isset( $_POST['reviews_from_xml_feed_hidden'] ) && $_POST['reviews_from_xml_feed_hidden'] == 'Y' ) {
+        if ( $reviews_from_xml_feed_url ) {
+            if ( simplexml_load_file( $reviews_from_xml_feed_url ) ) {
+                echo '<div class="notice notice-success is-dismissible">';
+                echo '<p>XML feed URL saved.</p>';
+                echo '</div>';
+            } else {
+                echo '<div class="notice notice-error is-dismissible">';
+                echo '<p>XML feed URL is not valid.</p>';
+                echo '</div>';
+            }
+        } else {
+            echo '<div class="notice notice-error is-dismissible">';
+            echo '<p>XML feed URL is not saved.</p>';
+            echo '</div>';
+        }
+    }
+
+    // Enqueueing the stylesheet
+    wp_enqueue_style( 'reviews-from-xml-feed', plugin_dir_url( __FILE__ ) . 'style.css' );
+
+}
+
+// Adding function that loads in the slick script and stylesheet
+function reviews_from_xml_feed_scripts() {
+    wp_enqueue_script( 'slick', 'https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.9.0/slick.min.js', array( 'jquery' ), '1.9.0', true );
+    wp_enqueue_style( 'slick', 'https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.9.0/slick.min.css', array(), '1.9.0', 'all' );
+    wp_enqueue_style( 'slick-theme', 'https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.9.0/slick-theme.min.css', array(), '1.9.0', 'all' );
+
+    // Loading in the slick settings
+    wp_enqueue_script( 'slick-settings', plugin_dir_url( __FILE__ ) . 'slick-settings.js', array( 'jquery' ), '1.0.0', true );
+}
+add_action( 'wp_enqueue_scripts', 'reviews_from_xml_feed_scripts' );
+
+// Creating the shortcode
 function reviews_from_xml_feed_shortcode() {
     ob_start();
 
-    // Getting the XML feed
-    $xml = simplexml_load_file('https://www.kiyoh.com/v1/review/feed.xml?hash=bedbc4iyxdb1wzu');
+    $xml = simplexml_load_file(get_option( 'reviews_from_xml_feed_url' ));
 
-    // Looping through the XML feed
-    foreach($xml->review as $review) {
-        // Getting the review data
-        $review_title = $review->title;
-        $review_description = $review->description;
-        $review_rating = $review->rating;
-        $review_date = $review->date;
-        $review_author = $review->author;
-        $review_author_location = $review->author_location;
+    // Check if the XML feed is blank, show error message if it is blank and show the reviews if it is not blank
+    if ( empty( $xml )) {
+        echo '<div class="notice notice-error is-dismissible">';
+        echo '<p>XML feed is blank.</p>';
+        echo '</div>';
+    } else {
+        echo '<div class="slick">';
 
-        // Displaying the review data
-        echo '<div class="review">';
-            echo '<h3 class="review-title">' . $review_title . '</h3>';
-            echo '<p class="review-description">' . $review_description . '</p>';
-            echo '<p class="review-rating">' . $review_rating . '</p>';
-            echo '<p class="review-date">' . $review_date . '</p>';
-            echo '<p class="review-author">' . $review_author . '</p>';
-            echo '<p class="review-author-location">' . $review_author_location . '</p>';
+        // adding a max to the foreach loop 
+        $max = 10;
+        $i = 0;
+
+        foreach($xml->reviews->reviews as $review) {
+            if ($i == $max) break;
+            $i++;
+            // Show the reviews in a slider with slick carousel and adding the slick class to the div
+            echo '<div class="review">';
+                echo '<span class="review__content__description">' . $review->reviewContent->reviewContent[2]->rating . '</span>';
+                echo '<p class="review__header__author__info">' . 'door ' . $review->reviewAuthor . ', ' . $review->city . ' - ' . '<span class="review__header__rating__number">' . $review->rating . '</span>' . '<span class="review__header__rating__out-of"> / 10</span>' . '</p>';
+            echo '</div>';
+        }
         echo '</div>';
     }
+
+    // Enqueueing the stylesheet
+    wp_enqueue_style( 'reviews-from-xml-feed', plugin_dir_url( __FILE__ ) . 'style.css' );
+
 
     return ob_get_clean();
 }
 add_shortcode( 'reviews-from-xml-feed', 'reviews_from_xml_feed_shortcode' );
-
-// Enqueueing the stylesheet
-function reviews_from_xml_feed_stylesheet() {
-    wp_enqueue_style( 'reviews-from-xml-feed', plugin_dir_url( __FILE__ ) . 'style.css' );
-}

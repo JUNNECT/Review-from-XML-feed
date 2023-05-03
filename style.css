@@ -1,0 +1,14 @@
+.slick-dots {
+    bottom:-50px!important;
+}
+
+.review {
+    text-align: center;
+    color:white;
+}
+
+.review__header__rating__number {
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 10px;
+}
