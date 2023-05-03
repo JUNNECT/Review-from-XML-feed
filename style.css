@@ -4,7 +4,12 @@
 
 .review {
     text-align: center;
-    color:white;
+}
+
+.review__content__title {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 10px;
 }
 
 .review__header__rating__number {

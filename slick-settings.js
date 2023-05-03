@@ -5,6 +5,7 @@ jQuery(document).ready(function($){
         slidesToShow: 1,
         slidesToScroll: 1,
         autoplay: true,
+        adaptiveHeight: true,
         autoplaySpeed: 5000,
         speed: 500,
         fade: true,
