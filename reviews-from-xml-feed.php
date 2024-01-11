@@ -151,8 +151,8 @@ function reviews_from_xml_feed_scripts() {
 
 
     wp_enqueue_script( 'slick', $plugin_dir . 'slick.min.js', array( 'jquery' ));
-    wp_enqueue_style( 'slick', $plugin_dir . 'slick.min.css', array() );
-    wp_enqueue_style( 'slick-theme', $plugin_dir . 'slick-theme.min.css', array());
+    wp_enqueue_style( 'slick', $plugin_dir . 'slick.css', array() );
+    wp_enqueue_style( 'slick-theme', $plugin_dir . 'slick-theme.css', array());
 
     // Loading in the slick settings
     wp_enqueue_script( 'slick-settings', plugin_dir_url( __FILE__ ) . 'slick-settings.js', array( 'jquery' ), '1.0.0', true );
