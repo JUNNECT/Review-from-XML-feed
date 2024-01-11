@@ -150,9 +150,9 @@ function reviews_from_xml_feed_scripts() {
     $plugin_dir = plugin_dir_url( __FILE__ ) . '/inc/';
 
 
-    wp_enqueue_script( 'slick', $plugin_dir . 'slick.min.js', array( 'jquery' ), '1.9.1', true );
-    wp_enqueue_style( 'slick', $plugin_dir . 'slick.min.css', array(), '1.9.1', 'all' );
-    wp_enqueue_style( 'slick-theme', $plugin_dir . 'slick-theme.min.css', array(), '1.9.1', 'all' );
+    wp_enqueue_script( 'slick', $plugin_dir . 'slick.min.js', array( 'jquery' ));
+    wp_enqueue_style( 'slick', $plugin_dir . 'slick.min.css', array() );
+    wp_enqueue_style( 'slick-theme', $plugin_dir . 'slick-theme.min.css', array());
 
     // Loading in the slick settings
     wp_enqueue_script( 'slick-settings', plugin_dir_url( __FILE__ ) . 'slick-settings.js', array( 'jquery' ), '1.0.0', true );
